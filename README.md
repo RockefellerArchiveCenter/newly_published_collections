@@ -21,6 +21,7 @@ The following environment variables are required:
 - AS_PASSWORD - password for an ArchivesSpace user with access to the `search` endpoint.
 - CARTOGRAPHER_BASEURL - base URL of the Cartographer instance to check for
   newly published arrangement maps.
+- TEAMS_URL - the webhook URL for a Teams channel in which newly published collections should be posted.
 
 This source code is intended to be run as a [container image in AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/python-image.html).
 

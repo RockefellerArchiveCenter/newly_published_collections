@@ -3,17 +3,22 @@
 """Post a list of newly published archival collections to a Microsoft Teams channel.
 
 Requires the following environment variables to be set:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    - AWS_BUCKET_NAME
-    - AS_BASEURL
-    - AS_USERNAME
-    - AS_PASSWORD
+    - AWS_ACCESS_KEY_ID - an access key for an AWS IAM user that has permissions to
+      write to the S3 bucket specified by `AWS_BUCKET_NAME`.
+    - AWS_SECRET_ACCESS_KEY - a secret key for an AWS IAM user that has permissions to
+      write to the S3 bucket specified by `AWS_BUCKET_NAME`.
+    - AWS_BUCKET_NAME - an S3 bucket in which to store a list of published collections.
+    - AS_BASEURL - base URL of the ArchivesSpace instance to check for newly
+      published resource records.
+    - AS_USERNAME - username for an ArchivesSpace user with access to the `search` endpoint.
+    - AS_PASSWORD - password for an ArchivesSpace user with access to the `search` endpoint.
+    - CARTOGRAPHER_BASEURL - base URL of the Cartographer instance to check for
+      newly published arrangement maps.
+    - TEAMS_URL - the webhook URL for a Teams channel in which newly published collections should be posted.
 """
 
 import calendar
 import json
-import logging
 from datetime import datetime
 from os import environ
 
@@ -24,14 +29,15 @@ from asnake.aspace import ASpace
 
 PREVIOUS_RESULTS_KEY = "results.json"
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
-
-def main(event, context):
-    url = "https://rockarchorg.webhook.office.com/webhookb2/6af11fd0-82fd-4071-ac16-373d9cee9d88@cd5cff62-bf10-444c-be6a-8f045c6f10d6/IncomingWebhook/c1395668419c463ab46d32eb7ec6ba10/4aeb25ac-1389-42dc-88a9-d47cbceb394e"
+def main(event=None, context=None):
+    url = environ.get('TEAMS_URL')
+    # "https://rockarchorg.webhook.office.com/webhookb2/6af11fd0-82fd-4071-ac16-373d9cee9d88@cd5cff62-bf10-444c-be6a-8f045c6f10d6/IncomingWebhook/c1395668419c463ab46d32eb7ec6ba10/4aeb25ac-1389-42dc-88a9-d47cbceb394e"
     date_format_string = '%B %e, %Y'
-    s3_client = boto3('s3')
+    s3_client = boto3.client('s3',
+                             aws_access_key_id=environ.get(
+                                 'AWS_ACCESS_KEY_ID'),
+                             aws_secret_access_key=environ.get('AWS_SECRET_ACCESS_KEY'))
 
     today = datetime.now()
     prev_month = today.month - 1
@@ -54,68 +60,27 @@ def main(event, context):
 
     previous_as_results = get_aspace_previously_published(s3_client)
     as_results = get_updated_archivesspace_resources(previous_as_results)
-    cartographer_results = get_updated_cartographer_maps(from_date)
-    formatted_results = [
-        format_result(r) for r in as_results +
-        cartographer_results] if len(
-        as_results +
-        cartographer_results) else no_results()
+    results = as_results + get_updated_cartographer_maps(from_date)
+    formatted_results = list(format_result(r) for r in results) if len(
+        results) else "No newly published collections for this period."
 
     message = {
-        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-        "type": "AdaptiveCard",
-        "version": "1.0",
-        "body": [
-            {
-                "type": "Container",
-                "padding": "Default",
-                "spacing": "None",
-                "style": "emphasis",
-                "items": [
-                    {
-                        "type": "TextBlock",
-                        "text": f"Collections published between {from_date.strftime(date_format_string)} and {to_date.strftime(date_format_string)}",
-                        "wrap": True,
-                        "weight": "Bolder",
-                        "size": "Large"
-                    }
-                ]
-            },
-            {
-                "type": "Container",
-                "padding": {
-                    "top": "Small",
-                    "bottom": "Small",
-                    "left": "Small",
-                    "right": "Default"
-                },
-                "spacing": "Small",
-                "separator": True,
-                "items": formatted_results,
-                "horizontalAlignment": "Left"
-            }
-        ],
+        "@context": "https://schema.org/extensions",
+        "type": "MessageCard",
+        "title": f"Collections published between {from_date.strftime(date_format_string)} and {to_date.strftime(date_format_string)}",
+        "text": "   \n".join(formatted_results),
         "padding": "None"
     }
 
-    print(message)
-
     encoded_msg = json.dumps(message).encode('utf-8')
-    response = requests.post(url, body=encoded_msg)
-
+    requests.post(url, data=encoded_msg)
     update_aspace_previously_published(as_results, s3_client)
-
-    logger.info('Status Code: {}'.format(response.status))
-    logger.info('Response: {}'.format(response.data))
 
 
 def format_result(result):
-    """Creates a formatted TextBlock from a result."""
+    """Creates a formatted DIMES link from a result."""
     dimes_id = shortuuid.uuid(name=result['uri'])
-    return {
-        "type": "TextBlock",
-        "text": f"[{result['title']}](https://dimes.rockarch.org/collections/{dimes_id})",
-        "wrap": True}
+    return f"[{result['title']}](https://dimes.rockarch.org/collections/{dimes_id})"
 
 
 def get_updated_archivesspace_resources(previously_published):
@@ -142,29 +107,20 @@ def get_updated_cartographer_maps(from_date):
     return maps
 
 
-def no_results():
-    """Returns a formatted TextBlock for cases when there are no newly published collections."""
-    return {
-        "type": "TextBlock",
-        "text": "No newly published collections for this period.",
-        "wrap": True}
-
-
 def get_aspace_previously_published(client):
     """Gets a list of previously published collections from an AWS bucket."""
     object = client.get_object(
-        Bucket=environ.get('AWS_BUCKET_NAME'),
-        Key=environ.get('PREVIOUS_RESULTS_KEY'))
+        Bucket=environ.get("AWS_BUCKET_NAME"),
+        Key=PREVIOUS_RESULTS_KEY)
     return json.loads(object['Body'].read())
-    # or json.load(object['Body'])
 
 
 def update_aspace_previously_published(results, client):
     """Updates a list of previously published collections in an AWS bucket."""
     client.put_object(
         Bucket=environ.get('AWS_BUCKET_NAME'),
-        Key=environ.get('PREVIOUS_RESULTS_KEY'),
-        Body=results)
+        Key=PREVIOUS_RESULTS_KEY,
+        Body=bytes(json.dumps(results), 'utf-8'))
 
 
 if __name__ == "__main__":
