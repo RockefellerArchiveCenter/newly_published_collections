@@ -1,0 +1,24 @@
+language: python
+python:
+  - "3.9"
+services:
+  - docker
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/.cache/pre-commit
+before_install:
+  - pip install awscli
+  - export PATH=$PATH:$HOME/.local/bin
+install:
+  - pip install tox
+script:
+  - tox
+  - docker build -t ${DOCKER_REPO} .
+deploy:
+  provider: script
+  script: bash scripts/docker_push.sh
+  on:
+    branch: base
+notifications:
+  email: false
