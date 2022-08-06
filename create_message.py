@@ -32,11 +32,9 @@ PREVIOUS_RESULTS_KEY = "results.json"
 
 def main(event=None, context=None):
     url = environ.get('TEAMS_URL')
-    # "https://rockarchorg.webhook.office.com/webhookb2/6af11fd0-82fd-4071-ac16-373d9cee9d88@cd5cff62-bf10-444c-be6a-8f045c6f10d6/IncomingWebhook/c1395668419c463ab46d32eb7ec6ba10/4aeb25ac-1389-42dc-88a9-d47cbceb394e"
     date_format_string = '%B %e, %Y'
     s3_client = boto3.client('s3',
-                             aws_access_key_id=environ.get(
-                                 'AWS_ACCESS_KEY_ID'),
+                             aws_access_key_id=environ.get('AWS_ACCESS_KEY_ID'),
                              aws_secret_access_key=environ.get('AWS_SECRET_ACCESS_KEY'))
 
     today = datetime.now()
@@ -51,30 +49,38 @@ def main(event=None, context=None):
     to_date = datetime(
         year=today.year,
         month=prev_month,
-        day=calendar.monthrange(
-            today.year,
-            prev_month)[1],
+        day=calendar.monthrange(today.year, prev_month)[1],
         hour=0,
         minute=0,
         second=0)
 
     previous_as_results = get_aspace_previously_published(s3_client)
-    as_results = get_updated_archivesspace_resources(previous_as_results)
-    results = as_results + get_updated_cartographer_maps(from_date)
-    formatted_results = list(format_result(r) for r in results) if len(
-        results) else "No newly published collections for this period."
+    new_updates = list(get_updated_archivesspace_resources())
+
+    as_results = [format_result(n) for n in new_updates if n not in previous_as_results]
+    cartographer_results = [format_result(r) for r in get_updated_cartographer_maps(from_date)]
 
     message = {
         "@context": "https://schema.org/extensions",
         "type": "MessageCard",
         "title": f"Collections published between {from_date.strftime(date_format_string)} and {to_date.strftime(date_format_string)}",
-        "text": "   \n".join(formatted_results),
-        "padding": "None"
+        "summary": "The following collections were recently updated or created.",
+        "sections": [
+            {
+                "title": "## Newly Published Collections",
+                "text": "   \n".join(as_results) if len(as_results) else "No new collections published during this period."
+            },
+            {
+                "title": "## Updated Arrangement Maps",
+                "text": "   \n".join(cartographer_results) if len(cartographer_results) else "No updated maps during this period."
+            }
+        ]
     }
 
     encoded_msg = json.dumps(message).encode('utf-8')
     requests.post(url, data=encoded_msg)
-    update_aspace_previously_published(as_results, s3_client)
+
+    update_aspace_previously_published(new_updates, s3_client)
 
 
 def format_result(result):
@@ -83,15 +89,14 @@ def format_result(result):
     return f"[{result['title']}](https://dimes.rockarch.org/collections/{dimes_id})"
 
 
-def get_updated_archivesspace_resources(previously_published):
+def get_updated_archivesspace_resources():
     """Gets updated resource records from ArchivesSpace."""
     client = ASpace(
         baseurl=environ.get('AS_BASEURL'),
         username=environ.get('AS_USERNAME'),
         password=environ.get('AS_PASSWORD')).client
-    current_published = client.get_paged(
+    return client.get_paged(
         "/search?q=publish:true&type[]=resource&fields[]=title,uri")
-    return [p for p in current_published if p not in previously_published]
 
 
 def get_updated_cartographer_maps(from_date):
