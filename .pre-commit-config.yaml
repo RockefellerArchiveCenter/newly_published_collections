@@ -4,6 +4,7 @@ repos:
   hooks:
   - id: autopep8
     args:
+      - --max-line-length=200
       - --in-place
       - --aggressive
 - repo: https://github.com/pycqa/flake8
