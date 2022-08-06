@@ -63,7 +63,7 @@ def main(event=None, context=None):
     message = {
         "@context": "https://schema.org/extensions",
         "type": "MessageCard",
-        "title": f"Collections published between {from_date.strftime(date_format_string)} and {to_date.strftime(date_format_string)}",
+        "title": f"New collections and updated arrangement maps from {from_date.strftime(date_format_string)} through {to_date.strftime(date_format_string)}",
         "summary": "The following collections were recently updated or created.",
         "sections": [
             {
