@@ -3,11 +3,11 @@
 """Post a list of newly published archival collections to a Microsoft Teams channel.
 
 Requires the following environment variables to be set:
-    - AWS_ACCESS_KEY_ID - an access key for an AWS IAM user that has permissions to
-      write to the S3 bucket specified by `AWS_BUCKET_NAME`.
-    - AWS_SECRET_ACCESS_KEY - a secret key for an AWS IAM user that has permissions to
-      write to the S3 bucket specified by `AWS_BUCKET_NAME`.
-    - AWS_BUCKET_NAME - an S3 bucket in which to store a list of published collections.
+    - ACCESS_KEY_ID - an access key for an AWS IAM user that has permissions to
+      write to the S3 bucket specified by `BUCKET_NAME`.
+    - SECRET_ACCESS_KEY - a secret key for an AWS IAM user that has permissions to
+      write to the S3 bucket specified by `BUCKET_NAME`.
+    - BUCKET_NAME - an S3 bucket in which to store a list of published collections.
     - AS_BASEURL - base URL of the ArchivesSpace instance to check for newly
       published resource records.
     - AS_USERNAME - username for an ArchivesSpace user with access to the `search` endpoint.
@@ -34,8 +34,8 @@ def main(event=None, context=None):
     url = environ.get('TEAMS_URL')
     date_format_string = '%B %e, %Y'
     s3_client = boto3.client('s3',
-                             aws_access_key_id=environ.get('AWS_ACCESS_KEY_ID'),
-                             aws_secret_access_key=environ.get('AWS_SECRET_ACCESS_KEY'))
+                             aws_access_key_id=environ.get('ACCESS_KEY_ID'),
+                             aws_secret_access_key=environ.get('SECRET_ACCESS_KEY'))
 
     today = datetime.now()
     prev_month = today.month - 1
@@ -115,7 +115,7 @@ def get_updated_cartographer_maps(from_date):
 def get_aspace_previously_published(client):
     """Gets a list of previously published collections from an AWS bucket."""
     object = client.get_object(
-        Bucket=environ.get("AWS_BUCKET_NAME"),
+        Bucket=environ.get("BUCKET_NAME"),
         Key=PREVIOUS_RESULTS_KEY)
     return json.loads(object['Body'].read())
 
@@ -123,7 +123,7 @@ def get_aspace_previously_published(client):
 def update_aspace_previously_published(results, client):
     """Updates a list of previously published collections in an AWS bucket."""
     client.put_object(
-        Bucket=environ.get('AWS_BUCKET_NAME'),
+        Bucket=environ.get('BUCKET_NAME'),
         Key=PREVIOUS_RESULTS_KEY,
         Body=bytes(json.dumps(results), 'utf-8'))
 
