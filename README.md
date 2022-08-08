@@ -10,9 +10,9 @@ Post a list of newly published archival collections to a Microsoft Teams channel
 
 ## Usage
 The following environment variables are required:
-- ACCESS_KEY_ID - an access key for an AWS IAM user that has permissions to
+- AWS_ACCESS_KEY_ID - an access key for an AWS IAM user that has permissions to
   write to the S3 bucket specified by `AWS_BUCKET_NAME`.
-- SECRET_ACCESS_KEY - a secret key for an AWS IAM user that has permissions to
+- AWS_SECRET_ACCESS_KEY - a secret key for an AWS IAM user that has permissions to
   write to the S3 bucket specified by `AWS_BUCKET_NAME`.
 - BUCKET_NAME - an S3 bucket in which to store a list of published collections.
 - AS_BASEURL - base URL of the ArchivesSpace instance to check for newly
