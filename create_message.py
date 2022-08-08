@@ -3,9 +3,9 @@
 """Post a list of newly published archival collections to a Microsoft Teams channel.
 
 Requires the following environment variables to be set:
-    - AWS_ACCESS_KEY_ID - an access key for an AWS IAM user that has permissions to
+    - ACCESS_KEY_ID - an access key for an AWS IAM user that has permissions to
       write to the S3 bucket specified by `BUCKET_NAME`.
-    - AWS_SECRET_ACCESS_KEY - a secret key for an AWS IAM user that has permissions to
+    - SECRET_ACCESS_KEY - a secret key for an AWS IAM user that has permissions to
       write to the S3 bucket specified by `BUCKET_NAME`.
     - BUCKET_NAME - an S3 bucket in which to store a list of published collections.
     - AS_BASEURL - base URL of the ArchivesSpace instance to check for newly
@@ -34,8 +34,8 @@ def main(event=None, context=None):
     url = environ.get('TEAMS_URL')
     date_format_string = '%B %e, %Y'
     s3_client = boto3.client('s3',
-                             aws_access_key_id=environ.get('AWS_ACCESS_KEY_ID'),
-                             aws_secret_access_key=environ.get('AWS_SECRET_ACCESS_KEY'))
+                             aws_access_key_id=environ.get('ACCESS_KEY_ID'),
+                             aws_secret_access_key=environ.get('SECRET_ACCESS_KEY'))
 
     today = datetime.now()
     prev_month = today.month - 1
