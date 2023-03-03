@@ -3,6 +3,9 @@ python:
   - "3.9"
 services:
   - docker
+env:
+  global:
+    - TIMESTAMP: $(date '+%Y%m%d%H%M%S')
 cache:
   directories:
     - $HOME/.cache/pip
