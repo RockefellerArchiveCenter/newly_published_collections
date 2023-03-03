@@ -3,6 +3,9 @@ python:
   - "3.9"
 services:
   - docker
+env:
+  global:
+    - TIMESTAMP: $(date '+%Y%m%d%H%M%S')
 cache:
   directories:
     - $HOME/.cache/pip
@@ -15,10 +18,12 @@ install:
 script:
   - tox
 before_deploy:
+  - if [ ! -d deploy_scripts ]; then git clone https://github.com/RockefellerArchiveCenter/deploy_scripts.git; fi
   - docker build -t ${DOCKER_REPO} .
+  - bash deploy_scripts/containers/push_image_to_ecr.sh
 deploy:
   provider: script
-  script: bash scripts/docker_push.sh
+  script: bash deploy_scripts/containers/deploy_image_lambda.sh
   on:
     branch: base
 notifications:
