@@ -14,9 +14,9 @@ install:
   - pip install tox
 script:
   - tox
-  - docker build -t ${DOCKER_REPO} .
 before_deploy:
   - if [ ! -d deploy_scripts ]; then git clone https://github.com/RockefellerArchiveCenter/deploy_scripts.git; fi
+  - docker build -t ${DOCKER_REPO} .
   - bash deploy_scripts/containers/push_image_to_ecr.sh
 deploy:
   provider: script
