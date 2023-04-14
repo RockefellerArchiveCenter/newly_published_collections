@@ -2,7 +2,7 @@
 
 """Post a list of newly published archival collections to a Microsoft Teams channel.
 
-Requires the following environment variables to be set:
+Requires the following encrypted environment variables to be set:
     - ACCESS_KEY_ID - an access key for an AWS IAM user that has permissions to
       write to the S3 bucket specified by `BUCKET_NAME`.
     - SECRET_ACCESS_KEY - a secret key for an AWS IAM user that has permissions to
@@ -19,6 +19,7 @@ Requires the following environment variables to be set:
 
 import calendar
 import json
+from base64 import b64decode
 from datetime import datetime
 from os import environ
 
@@ -31,11 +32,11 @@ PREVIOUS_RESULTS_KEY = "results.json"
 
 
 def main(event=None, context=None):
-    url = environ.get('TEAMS_URL')
+    url = decrypt_env_variable('TEAMS_URL')
     date_format_string = '%B %e, %Y'
     s3_client = boto3.client('s3',
-                             aws_access_key_id=environ.get('ACCESS_KEY_ID'),
-                             aws_secret_access_key=environ.get('SECRET_ACCESS_KEY'))
+                             aws_access_key_id=decrypt_env_variable('ACCESS_KEY_ID'),
+                             aws_secret_access_key=decrypt_env_variable('SECRET_ACCESS_KEY'))
 
     today = datetime.now()
     prev_month = today.month - 1
@@ -83,6 +84,14 @@ def main(event=None, context=None):
     update_aspace_previously_published(new_updates, s3_client)
 
 
+def decrypt_env_variable(env_key):
+    encrypted = environ.get(env_key)
+    return boto3.client('kms').decrypt(
+        CiphertextBlob=b64decode(encrypted),
+        EncryptionContext={'LambdaFunctionName': environ['AWS_LAMBDA_FUNCTION_NAME']}
+    )['Plaintext'].decode('utf-8')
+
+
 def format_result(result):
     """Creates a formatted DIMES link from a result."""
     dimes_id = shortuuid.uuid(name=result['uri'])
@@ -92,9 +101,9 @@ def format_result(result):
 def get_updated_archivesspace_resources():
     """Gets updated resource records from ArchivesSpace."""
     client = ASpace(
-        baseurl=environ.get('AS_BASEURL'),
-        username=environ.get('AS_USERNAME'),
-        password=environ.get('AS_PASSWORD')).client
+        baseurl=decrypt_env_variable('AS_BASEURL'),
+        username=decrypt_env_variable('AS_USERNAME'),
+        password=decrypt_env_variable('AS_PASSWORD')).client
     return client.get_paged(
         "/search?q=publish:true&type[]=resource&fields[]=title,uri")
 
@@ -102,12 +111,12 @@ def get_updated_archivesspace_resources():
 def get_updated_cartographer_maps(from_date):
     """Gets updated maps from Cartographer."""
     resp = requests.get(
-        f"{environ.get('CARTOGRAPHER_BASEURL')}/api/maps/?modified_since={int(from_date.timestamp())}")
+        f"{decrypt_env_variable('CARTOGRAPHER_BASEURL')}/api/maps/?modified_since={int(from_date.timestamp())}")
     resp.raise_for_status()
     maps = resp.json()['results']
     for idx, map in enumerate(maps):
         map_data = requests.get(
-            f"{environ.get('CARTOGRAPHER_BASEURL')}{map['ref']}").json()
+            f"{decrypt_env_variable('CARTOGRAPHER_BASEURL')}{map['ref']}").json()
         maps[idx]['uri'] = map_data['children'][0]['archivesspace_uri']
     return maps
 
@@ -115,7 +124,7 @@ def get_updated_cartographer_maps(from_date):
 def get_aspace_previously_published(client):
     """Gets a list of previously published collections from an AWS bucket."""
     object = client.get_object(
-        Bucket=environ.get("BUCKET_NAME"),
+        Bucket=decrypt_env_variable("BUCKET_NAME"),
         Key=PREVIOUS_RESULTS_KEY)
     return json.loads(object['Body'].read())
 
@@ -123,7 +132,7 @@ def get_aspace_previously_published(client):
 def update_aspace_previously_published(results, client):
     """Updates a list of previously published collections in an AWS bucket."""
     client.put_object(
-        Bucket=environ.get('BUCKET_NAME'),
+        Bucket=decrypt_env_variable('BUCKET_NAME'),
         Key=PREVIOUS_RESULTS_KEY,
         Body=bytes(json.dumps(results), 'utf-8'))
 
