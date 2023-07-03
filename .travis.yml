@@ -23,7 +23,7 @@ before_deploy:
   - bash deploy_scripts/containers/push_image_to_ecr.sh
 deploy:
   provider: script
-  script: bash deploy_scripts/containers/deploy_image_lambda.sh
+  script: bash deploy_scripts/containers/deploy_image_lambda.sh ${DOCKER_REPO}
   on:
     branch: base
 notifications:
