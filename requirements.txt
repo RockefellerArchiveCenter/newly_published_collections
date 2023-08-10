@@ -10,15 +10,15 @@ attrs==23.1.0
     # via archivessnake
 boltons==23.0.0
     # via archivessnake
-boto3==1.26.165
+boto3==1.28.16
     # via -r requirements.in
-botocore==1.29.165
+botocore==1.31.16
     # via
     #   boto3
     #   s3transfer
-certifi==2023.5.7
+certifi==2023.7.22
     # via requests
-charset-normalizer==3.1.0
+charset-normalizer==3.2.0
     # via requests
 idna==3.4
     # via requests
@@ -26,13 +26,13 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-more-itertools==9.1.0
+more-itertools==10.0.0
     # via archivessnake
 python-dateutil==2.8.2
     # via botocore
-pyyaml==6.0
+pyyaml==6.0.1
     # via archivessnake
-rapidfuzz==3.1.1
+rapidfuzz==3.1.2
     # via archivessnake
 requests==2.31.0
     # via
