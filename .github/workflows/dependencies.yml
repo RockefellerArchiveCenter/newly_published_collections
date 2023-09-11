@@ -26,10 +26,10 @@ jobs:
 
       - name: Run pre-commit autoupdate
         run: pre-commit autoupdate
-      
+
       - name: Run pip-compile
         run: pip-compile --upgrade
-      
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
@@ -39,4 +39,4 @@ jobs:
           delete-branch: true
           title: Dependency Updates
           commit-message: Dependency updates
-  
+
