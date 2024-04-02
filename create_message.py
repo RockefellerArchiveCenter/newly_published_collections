@@ -62,18 +62,52 @@ def main(event=None, context=None):
     cartographer_results = [format_result(r) for r in get_updated_cartographer_maps(from_date)]
 
     message = {
-        "@context": "https://schema.org/extensions",
-        "type": "MessageCard",
-        "title": f"New collections and updated arrangement maps from {from_date.strftime(date_format_string)} through {to_date.strftime(date_format_string)}",
-        "summary": "The following collections were recently updated or created.",
-        "sections": [
+        "type": "message",
+        "attachments": [
             {
-                "title": "## Newly Published Collections",
-                "text": "   \n".join(as_results) if len(as_results) else "No new collections published during this period."
-            },
-            {
-                "title": "## Updated Arrangement Maps",
-                "text": "   \n".join(cartographer_results) if len(cartographer_results) else "No updated maps during this period."
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "contentUrl": None,
+                "content": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "version": "1.5",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "weight": "bolder",
+                            "text": f"New collections and updated arrangement maps from {from_date.strftime(date_format_string)} through {to_date.strftime(date_format_string)}",
+                            "style": "heading",
+                            "size": "large",
+                            "wrap": True,
+                        },
+                        {
+                            "type": "TextBlock",
+                            "weight": "bolder",
+                            "text": "Newly Published Collections",
+                            "style": "heading",
+                            "size": "medium",
+                            "wrap": True,
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "   \n".join(as_results) if len(as_results) else "No new collections published during this period.",
+                            "wrap": True
+                        },
+                        {
+                            "type": "TextBlock",
+                            "weight": "bolder",
+                            "text": "Updated Arrangement Maps",
+                            "style": "heading",
+                            "size": "medium",
+                            "wrap": True,
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "   \n".join(cartographer_results) if len(cartographer_results) else "No updated maps during this period.",
+                            "wrap": True
+                        }
+                    ]
+                }
             }
         ]
     }
