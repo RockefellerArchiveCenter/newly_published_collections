@@ -70,7 +70,7 @@ def main(event=None, context=None):
                 "content": {
                     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
                     "type": "AdaptiveCard",
-                    "version": "1.5",
+                    "version": "1.4",
                     "body": [
                         {
                             "type": "TextBlock",
@@ -112,8 +112,8 @@ def main(event=None, context=None):
         ]
     }
 
-    encoded_msg = json.dumps(message).encode('utf-8')
-    requests.post(url, data=encoded_msg)
+    encoded_msg = json.dumps(message)
+    requests.post(url, headers={'Content-Type': 'application/json'}, data=encoded_msg)
 
     update_aspace_previously_published(new_updates, s3_client)
 
