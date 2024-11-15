@@ -71,5 +71,5 @@ jobs:
 
       - name: Deploy lambda
         run: aws lambda update-function-code
-          --function-name arn:aws:lambda:$AWS_REGION:$AWS_LAMBDA_ACCOUNT_ID:function:$LAMBDA_NAME
+          --function-name arn:aws:lambda:$AWS_REGION:${{ secrets.AWS_ACCOUNT_ID }}:function:$LAMBDA_NAME
           --image-uri ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.APP_NAME }}:prod
