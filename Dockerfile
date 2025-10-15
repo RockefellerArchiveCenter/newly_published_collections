@@ -1,7 +1,4 @@
-FROM python:3.12-alpine AS base
-
-# Install AWS Lambda Runtime Interface Client
-RUN pip3 install awslambdaric
+FROM public.ecr.aws/lambda/python:3.12 AS base
 
 # Install Python requirements
 COPY requirements.txt .
