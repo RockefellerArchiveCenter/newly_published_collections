@@ -2,7 +2,7 @@
 Post a list of newly published archival collections to a Microsoft Teams channel.
 
 ## Dependencies
-- Python 3 (tested on 3.9)
+- Python 3
 - [ArchivesSnake](https://pypi.org/project/boto3/)
 - [boto3](https://pypi.org/project/ArchivesSnake/)
 - [requests](https://pypi.org/project/requests/)
