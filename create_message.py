@@ -39,7 +39,7 @@ def main(event=None, context=None):
                              aws_secret_access_key=decrypt_env_variable('SECRET_ACCESS_KEY'))
 
     today = datetime.now()
-    prev_month = today.month - 1
+    prev_month = today.month - 1 if today.month > 1 else 12
     from_date = datetime(
         year=today.year,
         month=prev_month,
