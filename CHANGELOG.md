@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.1](https://github.com/RockefellerArchiveCenter/newly_published_collections/compare/v1.0.0...v1.0.1) (2026-07-06)
+
+
+### Bug Fixes
+
+* **deps:** Scheduled dependency updates ([6d2dd87](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/6d2dd87094bc46f4ba5a4bd89f489614ee4711e8))
+* **deps:** Scheduled dependency updates ([fb744aa](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/fb744aaf10b25c8be518e27fa1229060dd9ef33b))
+* **deps:** Scheduled dependency updates ([8ea52a4](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/8ea52a4ee468c2d3014078fda19f06b7c21e36de))
+* **deps:** Scheduled dependeny updates ([fb744aa](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/fb744aaf10b25c8be518e27fa1229060dd9ef33b))
+
 ## 1.0.0 (2026-06-18)
 
 
