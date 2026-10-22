@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.5](https://github.com/RockefellerArchiveCenter/newly_published_collections/compare/v1.0.4...v1.0.5) (2026-10-22)
+
+
+### Bug Fixes
+
+* update pip ([530e63c](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/530e63cd26f20e95cc8049a67e826fae266e4885))
+* update pip ([530e63c](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/530e63cd26f20e95cc8049a67e826fae266e4885))
+* update pip ([411fb9c](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/411fb9c97e27ebc8d3e9802216472cd229160eab))
+* update pip ([411fb9c](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/411fb9c97e27ebc8d3e9802216472cd229160eab))
+* update pip ([a13962e](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/a13962ecf88c19f74e67d5a6df328133f097cc7f))
+
 ## [1.0.4](https://github.com/RockefellerArchiveCenter/newly_published_collections/compare/v1.0.3...v1.0.4) (2026-10-05)
 
 
