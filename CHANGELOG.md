@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.7](https://github.com/RockefellerArchiveCenter/newly_published_collections/compare/v1.0.6...v1.0.7) (2026-11-19)
+
+
+### Bug Fixes
+
+* update deploy ([968f618](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/968f618f2bc2f839b32888206fbb9e212248242a))
+* update deploy ([d44f496](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/d44f49636b8d79906a3d73f8965616d9d3f1b891))
+* update deploy ([61f53d9](https://github.com/RockefellerArchiveCenter/newly_published_collections/commit/61f53d9a729420361eaaba767fc0f767b888a2b8))
+
 ## [1.0.6](https://github.com/RockefellerArchiveCenter/newly_published_collections/compare/v1.0.5...v1.0.6) (2026-11-02)
 
 
